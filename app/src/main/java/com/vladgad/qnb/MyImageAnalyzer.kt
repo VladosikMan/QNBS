@@ -9,11 +9,8 @@ import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 
-class MyImageAnalyzer(
-    private val fragmentManager: FragmentManager
-) : ImageAnalysis.Analyzer {
+class MyImageAnalyzer(private val fragmentManager: FragmentManager) : ImageAnalysis.Analyzer {
 
-    private var bottomSheet = BarcodeResultBottomSheet()
 
     override fun analyze(imageProxy: ImageProxy) {
         scanBarcode(imageProxy)
