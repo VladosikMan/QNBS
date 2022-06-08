@@ -33,6 +33,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var buttonSendURL: Button
     private lateinit var cameraFragment: CameraFragment
     private lateinit var nfcFragment: NfcFragment
+    private lateinit var beaconFragment: BeaconFragment
+    private lateinit var mainFragment: MainFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -45,7 +47,8 @@ class MainActivity : AppCompatActivity() {
                 .beginTransaction()
 
                 // 4|
-                .add(R.id.fragment_container_view, nfcFragment)
+                .add(R.id.fragment_container_view, mainFragment)
+                .setReorderingAllowed(true)
                 // 5
                 .commit()
         }
@@ -61,31 +64,58 @@ class MainActivity : AppCompatActivity() {
         buttonWork()
         cameraFragment = CameraFragment()
         nfcFragment = NfcFragment()
+        beaconFragment = BeaconFragment()
+        mainFragment = MainFragment()
     }
 
     private fun buttonWork() {
 
         buttonScanner.setOnClickListener {
-
+            //переход к камере
             supportFragmentManager
-                // 3
                 .beginTransaction()
-
-                // 4|
-                .add(R.id.fragment_container_view, cameraFragment)
-                // 5
+                .replace(R.id.fragment_container_view, mainFragment)
+                .setReorderingAllowed(true)
+                .commit()
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container_view, cameraFragment)
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
                 .commit()
         }
 
 
         buttonNFC.setOnClickListener {
+            //переход к nfc
 
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container_view, mainFragment)
+                .setReorderingAllowed(true)
+                .commit()
 
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container_view, nfcFragment)
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
         }
 
         buttonBeacon.setOnClickListener {
-
-
+            //переход к beacon
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container_view, mainFragment)
+                .setReorderingAllowed(true)
+                .commit()
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container_view, beaconFragment)
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
         }
 
         buttonSendURL.setOnClickListener {
@@ -147,13 +177,13 @@ class MainActivity : AppCompatActivity() {
               setBody(jsonString)
           }*/
 
-            val response: HttpResponse = client.post("https://ktor.io/") {
-               /* headers {
-                    append(HttpHeaders.Accept, "application/json")
-                }
-                setBody(jsonString)*/
-            }
-            Log.d("mTag", response.status.toString())
+        val response: HttpResponse = client.post("https://ktor.io/") {
+            /* headers {
+                 append(HttpHeaders.Accept, "application/json")
+             }
+             setBody(jsonString)*/
+        }
+        Log.d("mTag", response.status.toString())
 
         client.close()
     }
