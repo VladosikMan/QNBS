@@ -9,14 +9,15 @@
         android:id="@+id/fragment_container_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.3"/>
+        android:layout_weight="0.25"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.7"
+        android:layout_weight="0.5"
         android:gravity="center|top"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="#4dbcd8">
         <Button
             android:layout_width="200dp"
             android:layout_height="wrap_content"
@@ -27,9 +28,36 @@
         <Button
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:text="Check"
-            android:id="@+id/check"
+            android:text="NFC"
+            android:id="@+id/buttonNFC"
             android:layout_marginTop="10dp"
             ></Button>
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="Beacon"
+            android:id="@+id/buttonBeacon"
+            android:layout_marginTop="10dp"
+            ></Button>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp"
+        >
+            <EditText
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:hint="Введите URL"
+                android:id="@+id/editURL">
+            </EditText>
+            <Button
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="Отправить"
+                android:id="@+id/buttonSendURL"
+                android:layout_marginLeft="15dp"
+                ></Button>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

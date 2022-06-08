@@ -7,16 +7,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="NFCReader"
+        android:text="QNB Scanner"
         android:layout_marginTop="20dp"
         android:textColor="@color/black"
         android:textSize="18sp"
-      />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/nfc"
-        android:layout_marginTop="20dp">
-    </ImageView>
+        />
 </LinearLayout>

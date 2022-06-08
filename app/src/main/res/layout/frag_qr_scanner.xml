@@ -23,7 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="120dp"
+                android:layout_marginTop="20dp"
                 android:text="QNB Scanner"
                 android:textAlignment="center"
                 android:textColor="#FAFAFA"
