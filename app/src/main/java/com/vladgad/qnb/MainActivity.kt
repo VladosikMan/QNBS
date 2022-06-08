@@ -1,46 +1,38 @@
 package com.vladgad.qnb
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Insets.add
 import android.net.Uri
-import android.net.sip.SipManager.newInstance
-import android.net.wifi.p2p.nsd.WifiP2pUpnpServiceRequest.newInstance
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.util.Size
-import android.view.WindowInsets
-import android.view.WindowManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
-import com.google.android.gms.common.ErrorDialogFragment.newInstance
-import com.google.android.material.datepicker.MaterialCalendar.newInstance
 import com.google.common.util.concurrent.ListenableFuture
+import com.google.gson.Gson
+import com.vladgad.qnb.model.EmvCard
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import kotlinx.android.synthetic.main.activity_main.*
-import org.xmlpull.v1.XmlPullParserFactory.newInstance
-import java.lang.reflect.Array.newInstance
-import java.net.URLClassLoader.newInstance
-import javax.xml.datatype.DatatypeFactory.newInstance
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Unconfined
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
-    private lateinit var cameraExecutor: ExecutorService
-    private lateinit var analyzer: MyImageAnalyzer
     private lateinit var buttonScanner: Button
+    private lateinit var buttonNFC: Button
+    private lateinit var buttonBeacon: Button
+    private lateinit var buttonSendURL: Button
     private lateinit var cameraFragment: CameraFragment
-
+    private lateinit var nfcFragment: NfcFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -53,34 +45,28 @@ class MainActivity : AppCompatActivity() {
                 .beginTransaction()
 
                 // 4|
-                .add(R.id.fragment_container_view, cameraFragment)
+                .add(R.id.fragment_container_view, nfcFragment)
                 // 5
                 .commit()
         }
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.hide(WindowInsets.Type.statusBars())
-        } else {
-            @Suppress("DEPRECATION")
-            window.setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-            )
-        }
 
-        analyzer = MyImageAnalyzer(supportFragmentManager)
-        cameraExecutor = Executors.newSingleThreadExecutor()
-        cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
-        cameraProviderFuture.addListener(Runnable {
-            val cameraProvider = cameraProviderFuture.get()
-            bindPreview(cameraProvider)
-        }, ContextCompat.getMainExecutor(this))*/
     }
 
     //init
     private fun init() {
         buttonScanner = findViewById(R.id.buttonScanner)
+        buttonNFC = findViewById(R.id.buttonNFC)
+        buttonBeacon = findViewById(R.id.buttonBeacon)
+        buttonSendURL = findViewById(R.id.buttonSendURL)
+        buttonWork()
+        cameraFragment = CameraFragment()
+        nfcFragment = NfcFragment()
+    }
+
+    private fun buttonWork() {
+
         buttonScanner.setOnClickListener {
+
             supportFragmentManager
                 // 3
                 .beginTransaction()
@@ -90,31 +76,87 @@ class MainActivity : AppCompatActivity() {
                 // 5
                 .commit()
         }
-        cameraFragment = CameraFragment()
+
+
+        buttonNFC.setOnClickListener {
+
+
+        }
+
+        buttonBeacon.setOnClickListener {
+
+
+        }
+
+        buttonSendURL.setOnClickListener {
+            GlobalScope.launch(Unconfined) {
+                sendDataPost()
+            }
+        }
     }
 
-   /* @SuppressLint("UnsafeExperimentalUsageError")
-    private fun bindPreview(cameraProvider: ProcessCameraProvider) {
-        val preview: Preview = Preview.Builder()
-            .build()
-        val cameraSelector: CameraSelector = CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-            .build()
-        preview.setSurfaceProvider(previewView.createSurfaceProvider(null))
+    //отправка данных
+    private suspend fun sendDataPost() {
+        var gson = Gson()
 
-        val imageAnalysis = ImageAnalysis.Builder()
-            .setTargetResolution(Size(1280, 720))
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .build()
-        imageAnalysis.setAnalyzer(cameraExecutor, analyzer)
+        var dataJSON: DataJSON = DataJSON()
 
-        cameraProvider.bindToLifecycle(
-            this as LifecycleOwner,
-            cameraSelector,
-            imageAnalysis,
-            preview
-        )
-    }*/
+
+        var card: EmvCard = EmvCard()
+        card.cardNumber = "2200 2407 3152 2914"
+        card.expireDateMonth = "12"
+        card.expireDateYear = "30"
+
+
+        var card2: EmvCard = EmvCard()
+        card2.cardNumber = "2200 2407 3152 2914"
+        card2.expireDateMonth = "12"
+        card2.expireDateYear = "30"
+
+        var card3: EmvCard = EmvCard()
+        card3.cardNumber = "2200 2407 3152 2914"
+        card3.expireDateMonth = "12"
+        card3.expireDateYear = "30"
+        dataJSON.emvCard.add(card)
+        dataJSON.emvCard.add(card2)
+        dataJSON.emvCard.add(card3)
+
+        var qrData: QrData = QrData()
+        qrData.qrType = 2
+        qrData.qrRawData = "ewr"
+
+        var qrData2: QrData = QrData()
+        qrData2.qrType = 1
+        qrData2.qrRawData = "ewr"
+
+        var qrData3: QrData = QrData()
+        qrData3.qrType = 3
+        qrData3.qrRawData = "ewr"
+
+        dataJSON.qrDataList.add(qrData)
+        dataJSON.qrDataList.add(qrData2)
+        dataJSON.qrDataList.add(qrData3)
+
+        var jsonString = gson.toJson(dataJSON)
+        Log.d("mTag", jsonString)
+        val client = HttpClient(CIO)
+        /*  val response: HttpResponse = client.post("http://localhost:8080/post") {
+              headers{
+                  append(HttpHeaders.Accept,"")
+              }
+              setBody(jsonString)
+          }*/
+
+            val response: HttpResponse = client.post("https://ktor.io/") {
+               /* headers {
+                    append(HttpHeaders.Accept, "application/json")
+                }
+                setBody(jsonString)*/
+            }
+            Log.d("mTag", response.status.toString())
+
+        client.close()
+    }
 
     // функция по правке прав на съемку
     private fun checkCameraPermission() {
