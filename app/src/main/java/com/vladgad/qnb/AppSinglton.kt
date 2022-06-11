@@ -6,13 +6,22 @@ import com.vladgad.qnb.model.EmvCard
 
 class AppSinglton : Application() {
     //класс синглтон
-    lateinit var cardList : ArrayList<EmvCard>
-    lateinit var qrList : ArrayList<QrData>
-    lateinit var scanList : ArrayList<ScanRecord>
+    var cardList : ArrayList<EmvCard> = ArrayList()
+        set(value){
+            field = value
+        }
+        get() = field
+    var qrList : ArrayList<QrData> = ArrayList()
+        set(value){
+            field = value
+        }
+        get() = field
+    var scanList : ArrayList<ScanRecord> = ArrayList()
+        set(value){
+            field = value
+        }
+        get() = field
     override fun onCreate() {
         super.onCreate()
-        cardList = ArrayList()
-        qrList = ArrayList()
-        scanList = ArrayList()
     }
 }
