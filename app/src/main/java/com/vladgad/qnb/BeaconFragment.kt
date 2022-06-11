@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanRecord
 import android.bluetooth.le.ScanResult
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -16,12 +17,17 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
 import android.widget.Button
+import android.widget.ListView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
+import com.vladgad.qnb.model.EmvCard
 
 
 class BeaconFragment : Fragment(R.layout.frag_beacon_receiver) {
@@ -32,15 +38,63 @@ class BeaconFragment : Fragment(R.layout.frag_beacon_receiver) {
     private var scanning = false
     private var veryBad = true
     private val handler = Handler()
+    private lateinit var lv: ListView
+    private lateinit var beaconAdapter: BeaconAdapter
 
     private lateinit var buttonBle: Button
     private lateinit var conditionText: TextView
-
+    private lateinit var beaconList: ArrayList<ScanRecord>
     // Stops scanning after 10 seconds.
     private val SCAN_PERIOD: Long = 20000
 
+    //adapter
+    private class BeaconAdapter(public val listBeacon: ArrayList<ScanRecord>, context: Context) :
+        BaseAdapter() {
+        private val mInflator: LayoutInflater
 
+        init {
+            this.mInflator = LayoutInflater.from(context)
+        }
+
+        override fun getCount(): Int {
+            return listBeacon.size
+        }
+
+        override fun getItem(p0: Int): Any {
+            return listBeacon.get(p0)
+        }
+
+        override fun getItemId(p0: Int): Long {
+            return p0.toLong()
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
+            val view: View?
+            val vh: ListRowHolder
+            if (convertView == null) {
+                view = this.mInflator.inflate(R.layout.item_beacon, parent, false)
+                vh = ListRowHolder(view)
+                view.tag = vh
+            } else {
+                view = convertView
+                vh = view.tag as ListRowHolder
+            }
+            // задание свойств
+            vh.scanText.text = listBeacon[position].toString()
+            return view
+        }
+
+        private class ListRowHolder(row: View?) {
+            //описание элемента
+            public val scanText: TextView
+
+            init {
+                this.scanText = row?.findViewById(R.id.scanText) as TextView
+            }
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        beaconList = AppSingleton.scanList
         init(view)
         checkBeaconPermission()
         bluetoothManager =
@@ -74,6 +128,9 @@ class BeaconFragment : Fragment(R.layout.frag_beacon_receiver) {
     }
 
     private fun init(view: View) {
+        lv = view.findViewById(R.id.cardList) as ListView
+        beaconAdapter = BeaconAdapter(beaconList, requireContext())
+        lv.adapter = beaconAdapter
         buttonBle = view.findViewById(R.id.bleButton)
         buttonBle.setOnClickListener {
 
@@ -132,6 +189,7 @@ class BeaconFragment : Fragment(R.layout.frag_beacon_receiver) {
 
         }
     }
+
     // функция по правке прав на съемку
     private fun checkBeaconPermission() {
         if (activity?.let {

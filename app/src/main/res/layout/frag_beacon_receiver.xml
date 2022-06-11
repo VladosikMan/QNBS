@@ -2,33 +2,46 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center|top"
     android:layout_marginTop="20dp"
-    android:orientation="vertical"
-   >
+    android:gravity="center|top"
+    android:orientation="vertical">
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Beacon Scanner"
         android:textColor="@color/black"
         android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/conditionText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
+
+    <ListView
+        android:id="@+id/cardList"
+        android:layout_width="match_parent"
+        android:layout_height="300dp" >
+    </ListView>
+    <Button
+        android:id="@+id/bleButton"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="Включить"></Button>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/conditionText"
+        android:layout_gravity="right"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="15dp"
+        android:gravity="left"
+        android:text="Для выхода на главный экран\nнажмите 'назад'"
         android:textColor="@color/black"
-        android:textSize="12sp" />
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:layout_marginTop="20dp"
-            android:layout_width="120dp"
-            android:layout_height="50dp"
-            android:gravity="center"
-            android:id="@+id/bleButton"
-            android:text="Включить">
-        </Button>
-    </LinearLayout>
+        android:textSize="10sp"
+        android:textStyle="italic" />
 </LinearLayout>
