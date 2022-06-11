@@ -1,6 +1,9 @@
 package com.vladgad.qnb
 
+import android.app.Activity
+import android.app.PendingIntent.getActivity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
@@ -8,8 +11,13 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.ListView
+import android.widget.TextView
+
 
 import androidx.fragment.app.Fragment
 import com.vladgad.qnb.model.EmvCard
@@ -18,11 +26,93 @@ import com.vladgad.qnb.model.EmvCard
 class NfcFragment : Fragment(R.layout.frag_nfc_card_reader),
     SimpleCardReader.SimpleCardReaderCallback, NfcAdapter.ReaderCallback {
     private var nfcAdapter: NfcAdapter? = null
+    private lateinit var cardList: ArrayList<EmvCard>
+    private lateinit var lv: ListView
+    private lateinit var cardAdapter: CardAdapter
+
+    private class CardAdapter(public val listCard: ArrayList<EmvCard>, context: Context) :
+        BaseAdapter() {
+        private val mInflator: LayoutInflater
+
+        init {
+            this.mInflator = LayoutInflater.from(context)
+        }
+
+        override fun getCount(): Int {
+            return listCard.size
+        }
+
+        override fun getItem(p0: Int): Any {
+            return listCard.get(p0)
+        }
+
+        override fun getItemId(p0: Int): Long {
+            return p0.toLong()
+        }
+
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
+            val view: View?
+            val vh: ListRowHolder
+            if (convertView == null) {
+                view = this.mInflator.inflate(R.layout.item_card, parent, false)
+                vh = ListRowHolder(view)
+                view.tag = vh
+            } else {
+                view = convertView
+                vh = view.tag as ListRowHolder
+            }
+            // задание свойств
+            vh.holderName.text = listCard[position].holderName
+            vh.cardNumber.text = listCard[position].cardNumber
+            vh.mounth.text = listCard[position].expireDateMonth
+            vh.year.text = listCard[position].expireDateYear
+            return view
+        }
+
+
+        private class ListRowHolder(row: View?) {
+            //описание элемента
+            public val holderName: TextView
+            public val cardNumber: TextView
+            public val mounth: TextView
+            public val year: TextView
+
+            init {
+                this.holderName = row?.findViewById(R.id.holderNameText) as TextView
+                this.cardNumber = row?.findViewById(R.id.cardNumberText) as TextView
+                this.mounth = row?.findViewById(R.id.monthText) as TextView
+                this.year = row?.findViewById(R.id.yearText) as TextView
+            }
+        }
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        val appSinglton: AppSinglton
+        //cardList = appSinglton.cardList
+        cardList = ArrayList<EmvCard>()
+        var card: EmvCard = EmvCard()
+        card.holderName = "Vloed"
+        card.cardNumber = "2200 2407 3152 2914"
+        card.expireDateMonth = "12"
+        card.expireDateYear = "30"
+        cardList.add(card)
+        var card1: EmvCard = EmvCard()
+        card1.holderName = "Egor"
+        card1.cardNumber = "2200 2407 3152 2914"
+        card1.expireDateMonth = "01"
+        card1.expireDateYear = "24"
+        cardList.add(card1)
+
+
+
+
+
         nfcAdapter = NfcAdapter.getDefaultAdapter(requireActivity())
         if (nfcAdapter == null) {
-            Log.d("mTag","No NFC on this device")
+            Log.d("mTag", "No NFC on this device")
             //Toast.makeText(, "No NFC on this device", Toast.LENGTH_LONG).show()
         } else if (nfcAdapter?.isEnabled == false) {
 
@@ -40,6 +130,14 @@ class NfcFragment : Fragment(R.layout.frag_nfc_card_reader),
                 }
             }
         }
+        init(view)
+
+    }
+
+    private fun init(view: View) {
+        val lv = view.findViewById(R.id.cardList) as ListView
+        cardAdapter = CardAdapter(cardList, requireContext())
+        lv.adapter = cardAdapter
     }
 
     override fun cardIsReadyToRead(card: EmvCard) {
@@ -51,6 +149,8 @@ class NfcFragment : Fragment(R.layout.frag_nfc_card_reader),
         Log.d("mTag", card.secondCardNumber)
         Log.d("mTag", card.secondExpireDateMonth)
         Log.d("mTag", card.secondExpireDateYear)
+        cardAdapter.listCard.add(card)
+        cardAdapter.notifyDataSetChanged()
         //Toast.makeText(this, info, Toast.LENGTH_LONG).show()
     }
 
