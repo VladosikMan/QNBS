@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         init()
-        checkCameraPermission();
+      //  checkCameraPermission();
         if (savedInstanceState == null) {
             // 2
             supportFragmentManager

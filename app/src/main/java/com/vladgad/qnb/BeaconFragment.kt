@@ -87,7 +87,6 @@ class BeaconFragment : Fragment(R.layout.frag_beacon_receiver) {
         private class ListRowHolder(row: View?) {
             //описание элемента
             public val scanText: TextView
-
             init {
                 this.scanText = row?.findViewById(R.id.scanText) as TextView
             }
@@ -100,6 +99,7 @@ class BeaconFragment : Fragment(R.layout.frag_beacon_receiver) {
         bluetoothManager =
             getActivity()?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         adapter = bluetoothManager.getAdapter()
+        scanner = adapter.bluetoothLeScanner
         if (adapter == null) {
             // Device does not support Bluetooth
         } else if (!adapter.isEnabled()) {
@@ -184,9 +184,9 @@ class BeaconFragment : Fragment(R.layout.frag_beacon_receiver) {
     private val leScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
+            beaconList.add(result.scanRecord!!)
 
             Log.d("mTag", result.scanRecord.toString())
-
         }
     }
 

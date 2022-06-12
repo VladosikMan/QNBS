@@ -36,6 +36,7 @@ class MyImageAnalyzer(private val fragmentManager: FragmentManager) : ImageAnaly
     private fun readBarcodeData(barcodes: List<Barcode>) {
         for (barcode in barcodes) {
             var str : String;
+
             str = barcode.rawValue.toString();
             Log.d("mTag",str);
           /*  when (barcode.valueType) {

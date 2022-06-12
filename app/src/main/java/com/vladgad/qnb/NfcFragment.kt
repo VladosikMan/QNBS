@@ -1,7 +1,5 @@
 package com.vladgad.qnb
 
-import android.app.Activity
-import android.app.PendingIntent.getActivity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -23,13 +21,18 @@ import androidx.fragment.app.Fragment
 import com.vladgad.qnb.model.EmvCard
 
 
+
 class NfcFragment : Fragment(R.layout.frag_nfc_card_reader),
     SimpleCardReader.SimpleCardReaderCallback, NfcAdapter.ReaderCallback {
     private var nfcAdapter: NfcAdapter? = null
     private lateinit var cardList: ArrayList<EmvCard>
     private lateinit var lv: ListView
     private lateinit var cardAdapter: CardAdapter
+    private lateinit var statusText: TextView
 
+
+
+    //адаптер
     private class CardAdapter(public val listCard: ArrayList<EmvCard>, context: Context) :
         BaseAdapter() {
         private val mInflator: LayoutInflater
@@ -90,26 +93,8 @@ class NfcFragment : Fragment(R.layout.frag_nfc_card_reader),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        val appSinglton: AppSinglton
-        //cardList = appSinglton.cardList
-        cardList = ArrayList<EmvCard>()
-        var card: EmvCard = EmvCard()
-        card.holderName = "Vloed"
-        card.cardNumber = "2200 2407 3152 2914"
-        card.expireDateMonth = "12"
-        card.expireDateYear = "30"
-        cardList.add(card)
-        var card1: EmvCard = EmvCard()
-        card1.holderName = "Egor"
-        card1.cardNumber = "2200 2407 3152 2914"
-        card1.expireDateMonth = "01"
-        card1.expireDateYear = "24"
-        cardList.add(card1)
-
-
-
-
-
+        //val appSinglton: AppSinglton
+        cardList = AppSingleton.cardList
         nfcAdapter = NfcAdapter.getDefaultAdapter(requireActivity())
         if (nfcAdapter == null) {
             Log.d("mTag", "No NFC on this device")
@@ -135,9 +120,11 @@ class NfcFragment : Fragment(R.layout.frag_nfc_card_reader),
     }
 
     private fun init(view: View) {
-        val lv = view.findViewById(R.id.cardList) as ListView
+        lv = view.findViewById(R.id.cardList) as ListView
         cardAdapter = CardAdapter(cardList, requireContext())
         lv.adapter = cardAdapter
+        statusText = view.findViewById(R.id.statusText) as TextView
+
     }
 
     override fun cardIsReadyToRead(card: EmvCard) {
@@ -151,15 +138,18 @@ class NfcFragment : Fragment(R.layout.frag_nfc_card_reader),
         Log.d("mTag", card.secondExpireDateYear)
         cardAdapter.listCard.add(card)
         cardAdapter.notifyDataSetChanged()
-        //Toast.makeText(this, info, Toast.LENGTH_LONG).show()
+        statusText.text = "Success"
     }
 
     override fun cardMovedTooFastOrLockedNfc() {
         Log.d("mTag", "Tap again")
+        statusText.text = "Tap again"
+
     }
 
     override fun errorReadingOrUnsupportedCard() {
         Log.d("mTag", "Error / Unsupported")
+        statusText.text = "Error / Unsupported"
     }
 
     override fun onTagDiscovered(tag: Tag?) {
