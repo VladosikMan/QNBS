@@ -184,8 +184,9 @@ class BeaconFragment : Fragment(R.layout.frag_beacon_receiver) {
     private val leScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
-            beaconList.add(result.scanRecord!!)
-
+            //beaconList.add(result.scanRecord!!)
+            AppSingleton.scanList.add(result.scanRecord!!)
+            AppSingleton.qnb.add(DataQNB(2,null,null,result.scanRecord))
             Log.d("mTag", result.scanRecord.toString())
         }
     }
