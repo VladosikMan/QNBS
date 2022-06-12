@@ -136,25 +136,6 @@ class CameraFragment : Fragment(R.layout.frag_qr_scanner) {
                 AppSingleton.qnb.add(DataQNB(0,qrData,null,null))
                 manager.popBackStack()
                 break
-
-                /*  when (barcode.valueType) {
-                          var str : String;
-                          str = barcode.rawValue.toString();
-                          Log.d("mTag",str);
-                      *//*Barcode.TYPE_URL -> {
-                    if (!bottomSheet.isAdded)
-                        bottomSheet.show(fragmentManager, "")
-                    bottomSheet.updateURL(barcode.url?.url.toString())
-                }
-                Barcode.TYPE_TEXT ->{
-                    var str : String;
-                    str = barcode.rawValue.toString();
-                    Log.d("mTag",str);
-                }*//*
-            }*/
-
-
-
             }
         }
     }

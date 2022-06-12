@@ -128,15 +128,9 @@ class NfcFragment : Fragment(R.layout.frag_nfc_card_reader),
     }
 
     override fun cardIsReadyToRead(card: EmvCard) {
-        val info = card.toString()
-        Log.d("mTag", card.cardNumber)
-        Log.d("mTag", card.expireDateMonth)
-        Log.d("mTag", card.expireDateYear)
-        Log.d("mTag", card.holderName)
-        Log.d("mTag", card.secondCardNumber)
-        Log.d("mTag", card.secondExpireDateMonth)
-        Log.d("mTag", card.secondExpireDateYear)
-        cardAdapter.listCard.add(card)
+        //cardAdapter.listCard.add(card)
+        AppSingleton.cardList.add(card)
+        AppSingleton.qnb.add(DataQNB(1,null,card,null))
         cardAdapter.notifyDataSetChanged()
         statusText.text = "Success"
     }
