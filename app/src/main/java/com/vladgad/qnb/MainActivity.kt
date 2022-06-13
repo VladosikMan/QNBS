@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nfcFragment: NfcFragment
     private lateinit var beaconFragment: BeaconFragment
     private lateinit var mainFragment: MainFragment
+    private lateinit var statusPost : TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -57,6 +59,7 @@ class MainActivity : AppCompatActivity() {
 
     //init
     private fun init() {
+        statusPost = findViewById(R.id.statusPost)
         buttonScanner = findViewById(R.id.buttonScanner)
         buttonNFC = findViewById(R.id.buttonNFC)
         buttonBeacon = findViewById(R.id.buttonBeacon)
@@ -120,72 +123,34 @@ class MainActivity : AppCompatActivity() {
 
         buttonSendURL.setOnClickListener {
             GlobalScope.launch(Unconfined) {
-                sendDataPost()
+               val status : HttpStatusCode = sendDataPost()
             }
         }
     }
 
     //отправка данных
-    private suspend fun sendDataPost() {
+    private suspend fun sendDataPost() : HttpStatusCode {
         var gson = Gson()
-
-        var dataJSON: DataJSON = DataJSON()
-
-
-        var card: EmvCard = EmvCard()
-        card.cardNumber = "2200 2407 3152 2914"
-        card.expireDateMonth = "12"
-        card.expireDateYear = "30"
-
-
-        var card2: EmvCard = EmvCard()
-        card2.cardNumber = "2200 2407 3152 2914"
-        card2.expireDateMonth = "12"
-        card2.expireDateYear = "30"
-
-        var card3: EmvCard = EmvCard()
-        card3.cardNumber = "2200 2407 3152 2914"
-        card3.expireDateMonth = "12"
-        card3.expireDateYear = "30"
-        dataJSON.emvCard.add(card)
-        dataJSON.emvCard.add(card2)
-        dataJSON.emvCard.add(card3)
-
-        var qrData: QrData = QrData()
-        qrData.qrType = 2
-        qrData.qrRawData = "ewr"
-
-        var qrData2: QrData = QrData()
-        qrData2.qrType = 1
-        qrData2.qrRawData = "ewr"
-
-        var qrData3: QrData = QrData()
-        qrData3.qrType = 3
-        qrData3.qrRawData = "ewr"
-
-        dataJSON.qrDataList.add(qrData)
-        dataJSON.qrDataList.add(qrData2)
-        dataJSON.qrDataList.add(qrData3)
-
-        var jsonString = gson.toJson(dataJSON)
+        var jsonString = gson.toJson(AppSingleton.qnb)
         Log.d("mTag", jsonString)
         val client = HttpClient(CIO)
-        /*  val response: HttpResponse = client.post("http://localhost:8080/post") {
-              headers{
-                  append(HttpHeaders.Accept,"")
-              }
-              setBody(jsonString)
-          }*/
 
         val response: HttpResponse = client.post("https://ktor.io/") {
-            /* headers {
+             headers {
                  append(HttpHeaders.Accept, "application/json")
              }
-             setBody(jsonString)*/
+             setBody(jsonString)
         }
         Log.d("mTag", response.status.toString())
-
-        client.close()
+        if(response.status == HttpStatusCode.OK){
+           // statusPost.text = "Success - " + response.status.toString()
+            AppSingleton.qnb.clear()
+            AppSingleton.cardList.clear()
+            AppSingleton.scanList.clear()
+            AppSingleton.qrList.clear()
+        }
+        
+        return response.status
     }
 
     // функция по правке прав на съемку
@@ -203,6 +168,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
 }
